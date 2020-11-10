@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"
+<html>
+<title>xCite Documentation: Templates eXtracted from Wikipedia.</title>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.16.2/build/styles/default.min.css">
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.16.2/build/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<style type="text/css">
+<!--
+ .tab { margin-left: 40px; }
+-->
+</style>
+</head>
+
+<body>
+
+<h1>xCite Documentation</h1>
+<br>
+<h3>What is xCite?</h3>
+<p class="tab">xCite creates dump files containing all instances of certain templates on Wikipedia.</p>
+
+<h3>Cycle</h3>
+<p class="tab">Dumps are created weekly. Faster times are possible.</p>
+<p class="tab">4 cycles are kept online. More are possible.</p>
+
+<h3>Extraction</h3>
+<p class="tab">The templates are kept exactly as they appear in the wikisource. Special character newlines, etc.. use standard JSON encoding. Spaces are maintained. Templates with redirect names are included eg. {{cite book}} and {{citebook}}.</p>
+<p class="tab">xCite uses the Toolforge grid for concurrent workers allowing for very fast parsing. If a worker fails mid-stream due to grid instability it will restart no data is lost. Pages are retrieved via the API (the most current live database) there is no lag from dumps or the replication server.</p>
+
+<h3>File format</h3>
+<p class="tab">JSON with one JSON object containing one template per line.</p>
+<p class="tab">Example line from en.wikipedia.org.magazine.json:</p>
+
+<pre><p class="tab"><code class="html">
+{"a":"100,000 Cobbers","c":"{{cite magazine|title= Soldiers Make New Film |url=http://nla.gov.au/nla.obj-722411219 |page=10|date=October 11, 1941|magazine=Pix}}"}
+</code></pre></p>
+
+<p class="tab">"a" = article name<br>"c" = citation</p>
+
+<p class="tab">The file is semi-sorted: cites from an individual article are grouped in contiguous lines. Article names are unsorted.
+
+<h3>Access</h3>
+<p class="tab">Web interface: <a href="https://tools-static.wmflabs.org/botwikiawk/xcite/xcite.html">https://tools-static.wmflabs.org/botwikiawk/xcite/xcite.html</a></p>
+<p class="tab">Direct access: <a href="https://tools-static.wmflabs.org/botwikiawk/xcite/">https://tools-static.wmflabs.org/botwikiawk/xcite/</a></p>
+<p class="tab">Log file: <a href="https://tools-static.wmflabs.org/botwikiawk/xcite/log.txt">https://tools-static.wmflabs.org/botwikiawk/xcite/log.txt</a></p>
+
+<p class="tab">The log.txt can be accessed programmatically as an index to determine what is available. Entries are listed newest to oldest.</p>
+
+</body>
+</html>
+
+
