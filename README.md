@@ -55,16 +55,16 @@ Installation
 
 5. Configure paths and any other hard coded strings:
 
-	In BEGIN{} section of xcite.awk
-	In BEGIN{} section of makehtml.awk
-	In "globals" section of runbot.nim
+		In BEGIN{} section of xcite.awk
+		In BEGIN{} section of makehtml.awk
+		In "globals" section of runbot.nim
 
 6. Copy doc.html to the www directory defined in step 5
 
 6. Compile runbot.nim
 
-	./l  (fast compile during development)
-	./lx (for release version)
+		./l  (fast compile during development)
+		./lx (for release version)
 
 Running
 ========
@@ -72,9 +72,11 @@ Running
 1. Test run
 
 	A. Example for enwiki
+
 		/usr/bin/jsub -once -continuous -quiet -N xcite-enwiki -l mem_free=100M,h_vmem=100M -e /data/project/botwikiawk/xcite/stdioer/enwiki.stderr -o /data/project/botwikiawk/xcite/stdioer/enwiki.stdout -v "AWKPATH=.:/data/project/botwikiawk/BotWikiAwk/lib" -v "PATH=/sbin:/bin:/usr/sbin:/usr/local/bin:/usr/bin:/data/project/botwikiawk/BotWikiAwk/bin" -wd /data/project/botwikiawk/xcite /data/project/botwikiawk/xcite/xcite.awk -l en -d wikipedia.org
 
 	B. Example for trwiki
+
 		/usr/bin/jsub -once -continuous -quiet -N xcite-trwiki -l mem_free=100M,h_vmem=100M -e /data/project/botwikiawk/xcite/stdioer/trwiki.stderr -o /data/project/botwikiawk/xcite/stdioer/trwiki.stdout -v "AWKPATH=.:/data/project/botwikiawk/BotWikiAwk/lib" -v "PATH=/sbin:/bin:/usr/sbin:/usr/local/bin:/usr/bin:/data/project/botwikiawk/BotWikiAwk/bin" -wd /data/project/botwikiawk/xcite /data/project/botwikiawk/xcite/xcite.awk -l tr -d wikipedia.org
 
 	Monitor if any problems in ~/log and ~/stdiorer .. watch db's being built in ~/db
