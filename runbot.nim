@@ -123,13 +123,13 @@ type
   ExeObj* = object
     timeout: string
     wget: string
-    awk2nim: string
+    trans2nim: string
 
 var Exe*: ExeObj
 
 Exe.timeout = "/usr/bin/timeout --foreground"
 Exe.wget = "/usr/bin/wget"
-Exe.awk2nim = GX.homedir & "awk2nim.awk"
+Exe.trans2nim = GX.homedir & "trans2nim.awk"
 
 
 # _______________________________________________________________________ Utils
@@ -505,13 +505,13 @@ proc runbot() =
 proc main() =
 
   # Load regex localizations from trans.awk
-  # awk2nim.awk -> targets["books"] = "(?i){{cite book|citebook|...}}"
+  # trans2nim.awk -> targets["books"] = "(?i){{cite book|citebook|...}}"
   let c = awk.split(CL.target, a, "[+]")
   if c > 0:
     for i in 0..c-1:
-      targets[a[i]] =  strip(runshellBasic(Exe.awk2nim & " -d " & CL.domain & " -l " & CL.lang & " -s " & shquote(a[i]) ))
+      targets[a[i]] =  strip(runshellBasic(Exe.trans2nim & " -d " & CL.domain & " -l " & CL.lang & " -s " & shquote(a[i]) ))
   else:
-    targets[CL.target] = strip(runshellBasic(Exe.awk2nim & " -d " & CL.domain & " -l " & CL.lang & " -s " & shquote(CL.target) ))
+    targets[CL.target] = strip(runshellBasic(Exe.trans2nim & " -d " & CL.domain & " -l " & CL.lang & " -s " & shquote(CL.target) ))
 
   # Generate seq GX.targets["book", "journal"]
   for k in targets.keys:

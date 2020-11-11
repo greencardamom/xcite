@@ -18,21 +18,20 @@
 
 <body>
 
-<h1>xCite Documentation</h1>
-<br>
+<h1><u>xCite Documentation</u></h1>
 <h3>What is xCite?</h3>
 <p class="tab">xCite creates dump files containing all instances of certain templates on Wikipedia.</p>
 
-<h3>Cycle</h3>
-<p class="tab">Dumps are created weekly. Faster times are possible.</p>
-<p class="tab">4 cycles are kept online. More are possible.</p>
-
 <h3>Extraction</h3>
 <p class="tab">The templates are kept exactly as they appear in the wikisource. Special character newlines, etc.. use standard JSON encoding. Spaces are maintained. Templates with redirect names are included eg. {{cite book}} and {{citebook}}.</p>
-<p class="tab">xCite uses the Toolforge grid for concurrent workers allowing for very fast parsing. If a worker fails mid-stream due to grid instability it will restart no data is lost. Pages are retrieved via the API (the most current live database) there is no lag from dumps or the replication server.</p>
+<p class="tab">xCite uses the Toolforge grid with concurrent workers allowing for very fast parsing. If a worker fails mid-stream due to grid instability it will restart no data is lost. Pages are retrieved via the API (the most current live database) there is no lag from other dumps or the replication server.</p>
+
+<h3>Cycle</h3>
+<p class="tab">Dumps are generated weekly. Faster times are possible if requested.</p>
+<p class="tab">4 cycles for each language are kept online.</p>
 
 <h3>File format</h3>
-<p class="tab">JSON with one JSON object containing one template per line.</p>
+<p class="tab">JSON with one object containing one template per line.</p>
 <p class="tab">Example line from en.wikipedia.org.magazine.json:</p>
 
 <pre><p class="tab"><code class="html">
@@ -48,10 +47,11 @@
 <p class="tab">Direct access: <a href="https://tools-static.wmflabs.org/botwikiawk/xcite/">https://tools-static.wmflabs.org/botwikiawk/xcite/</a></p>
 <p class="tab">Log file: <a href="https://tools-static.wmflabs.org/botwikiawk/xcite/log.txt">https://tools-static.wmflabs.org/botwikiawk/xcite/log.txt</a></p>
 
-<p class="tab">The log.txt can be accessed programmatically as an index to determine what is available. Entries are listed newest to oldest.</p>
+<p class="tab">The log.txt can be accessed programmatically as an index to determine what is available. Entries are listed newest to oldest. It is recommended to use log.txt when determining completed dumps because incomplete files might be in the directory during creation.</p>
 
 </body>
 </html>
 
 <h3>Credits</h3>
 <p class="tab">GitHub: <a href="https://github.com/greencardamom/xcite">https://github.com/greencardamom/xcite</a></p>
+<p class="tab">Contact: <a href="https://en.wikipedia.org/wiki/User:GreenC">User:GreenC</a></p>

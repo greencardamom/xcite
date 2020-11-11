@@ -59,7 +59,7 @@ BEGIN {
   # CS1|2 citation templates to create dumps for
   # \n separated list without leading "cite" in template name 
   # eg. "book\njournal" will create dumps for {{cite book}} and {{cite journal}}
-  # Citations must have localizations and regexs defined in trans.awk and awk2nim.awk
+  # Citations must have localizations and regexs defined in trans.awk and trans2nim.awk
 
   G["target"] = "book\njournal\nnews\nmagazine"
 
@@ -68,7 +68,7 @@ BEGIN {
   P["log"] = Home "log/"          
   P["www"] = "/data/project/botwikiawk/www/static/xcite/"
   P["key"] = G["lang"] "." G["domain"]
-  P["email"] = "dfgf56greencard93@nym.hush.com"
+  P["email"] = ""                   # add email for warning messages
 
   G["apiURL"] = "https://" P["key"] "/w/api.php?"
   G["maxlag"] = 5
@@ -80,7 +80,7 @@ BEGIN {
   G["slots"] = 6          # number of concurrent runbot's - valid 1 to 26. Update neq() for more
                           # Toolforge accounts are assigned a default max of 15 slots
                           # The more slots the faster it will complete
-                          # About 8 slots will finish enwiki in about 12 hours
+                          # 6 slots will finish enwiki in about 12-20 hours
 
   delete R
   loadtrans(G["lang"], G["domain"]) # load R[] with localizations from trans.awk
@@ -198,8 +198,8 @@ function main(  i,a,command,fn,json,k,c1,c2,lines,db,wc,filesz) {
       if(checkexists(fn)) {
         sys2var(Exe["mv"] " " fn " " json)
         wc = splitx(sys2var(Exe["wc"] " -l " json), " ", 1)
-        filesz = splitx(int(filesize(json)) / 1000000, ".", 1) + 1 # whole number rounded up
         sys2var(Exe["gzip"] " -f " json)
+        filesz = splitx(int(filesize(json ".gz")) / 1000000, ".", 1) + 1 # whole number rounded up
         parallelWrite(P["key"] " " a[k] " " date8() " " wc " " filesz, P["db"] "master.db", Engine)
       }
     }
@@ -295,7 +295,7 @@ function execbot(ip,  n,command,i,dbout,dblock,newtarg,alldone) {
 function cyclejson(  c,line,i,a,w,filename,filetype) {
 
   if(checkexists(P["www"] "log.txt")) 
-    removefile2(P["www"] "log.txt"))
+    removefile2(P["www"] "log.txt")
 
   c = split(readfile(P["db"] "master.db"), line, "\n")
   for(i = c; i >= 1; i--) {

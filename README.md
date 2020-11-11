@@ -63,8 +63,8 @@ Installation
 
 6. Compile runbot.nim
 
-		./l  (fast compile during development)
-		./lx (for release version)
+		./c  (fast compile during development)
+		./cx (for release version)
 
 Running
 ========
@@ -81,8 +81,12 @@ Running
 
 	Monitor if any problems in ~/log and ~/stdiorer .. watch db's being built in ~/db
 
+	When done, run "./makehtml.awk" to generate the HTML page.
+
 2. Add jsub commands to cron
 
-	For planning purposes, Enwiki will take 8-12hrs with 6 slots allocated (Toolforge allows up to 15 slots concurrent by default). Trwiki takes under an hour with 6 slots.
+	For planning purposes, Enwiki takes 18-20 hrs with 6 slots allocated. Trwiki is under an hour with 6 slots.
 
 3. Add makehtml.awk to cron
+
+	It should run after xcite.awk completes, or on a regular schedule like once an hour.

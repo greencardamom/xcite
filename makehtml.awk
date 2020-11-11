@@ -98,7 +98,6 @@ function makePage( i,o,o2,o3,o4,Tb,hn,dn) {
 
   print "<tbody>" >> P["html"]  
   print "<center><a href=\"doc.html\">Documentation</a></center>" >> P["html"]
-  print "<center>Column headers sortable</center>" >> P["html"]
 
   #    <th><u>#</u></th>
   #    <th><u>A</u><br>Site</th>
@@ -126,13 +125,13 @@ function makePage( i,o,o2,o3,o4,Tb,hn,dn) {
           Tb[o][o2][o3][o4]["mb"] 
           print "  <tr>" >> P["html"]
           print "      <td>" ++i ".</td>" >> P["html"] 
+          print "      <td>" isodash(o4) "</td>" >> P["html"]
           print "      <td>" o2 "</td>" >> P["html"]
           print "      <td>" R["plainlang"] "</td>" >> P["html"]
-          print "      <td>{{<a href=\"https://" o2 "/wiki/Template:" urlencodeawk(R[o3 "tlname"]) "\">" R[o3 "tlname"] "</a>}}</td>" >> P["html"]
+          print "      <td sorttable_customkey=\"" o3 "\">{{<a href=\"https://" o2 "/wiki/Template:" urlencodeawk(R[o3 "tlname"]) "\">" R[o3 "tlname"] "</a>}}</td>" >> P["html"]
           print "      <td>" coma(Tb[o][o2][o3][o4]["wc"]) "</td>" >> P["html"]
-          print "      <td>" isodash(o4) "</td>" >> P["html"]
           print "      <td><a href=\"https://tools-static.wmflabs.org/botwikiawk/xcite/" o2 "." o3 "." o4 ".json.gz\">" o2 "." o3 "." o4 ".json.gz"  "</a></td>" >> P["html"]
-          print "      <td>" Tb[o][o2][o3][o4]["mb"] " MB</td>" >> P["html"]
+          print "      <td sorttable_customkey=\"" Tb[o][o2][o3][o4]["mb"] "\">" Tb[o][o2][o3][o4]["mb"] " MB</td>" >> P["html"]
           print "  </tr>" >> P["html"]
         }
       }
@@ -199,10 +198,10 @@ BEGIN {
 
   delete T
   delete P
-  P["email"] = "dfgf56greencard93@nym.hush.com"
-  P["db"]  = Home "db/"             # article name database files
+  P["email"] = ""                     # add email for warning messages
+  P["db"]  = Home "db/"               # article name database files
   P["log"]  = Home "log/"             # article name database files
-  P["www"] = "/data/project/botwikiawk/www/static/xcite/"
+  P["www"] = "/data/project/botwikiawk/www/static/xcite/"  
   P["html"] = P["www"] "xcite.html"
 
   main()
