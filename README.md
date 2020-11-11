@@ -8,9 +8,11 @@ MIT License
 
 Info
 ========
-xCite extracts complete corpus of templates from Wikipedia and saves them in dump files.
+xCite extracts complete corpus of templates from Wikipedia and saves in dump files.
 
-[Full Documentation](https://tools-static.wmflabs.org/botwikiawk/xcite/doc.html)
+[Web interface](https://tools-static.wmflabs.org/botwikiawk/xcite/xcite.html)
+
+[Documentation](https://tools-static.wmflabs.org/botwikiawk/xcite/doc.html)
 
 Dependencies 
 ========
@@ -22,7 +24,7 @@ Dependencies
 Installation
 ========
 
-1. Install BotWikiAwk following setup instructions. 
+1. Create a project on Toolforge and install BotWikiAwk following setup instructions. 
 
 2. Install Nim
 
@@ -53,13 +55,13 @@ Installation
 		Exe["wc"] = "/usr/bin/wc"
 		Exe["split"] = "/usr/bin/split"
 
-5. Configure paths and any other hard coded strings:
+5. Configure paths and any other hard coded strings such as email address:
 
 		In BEGIN{} section of xcite.awk
 		In BEGIN{} section of makehtml.awk
 		In "globals" section of runbot.nim
 
-6. Copy doc.html to the www directory defined in step 5
+6. Copy doc.html to the public www directory defined in step 5
 
 6. Compile runbot.nim
 
@@ -85,8 +87,8 @@ Running
 
 2. Add jsub commands to cron
 
-	For planning purposes, Enwiki takes 18-20 hrs with 6 slots allocated. Trwiki is under an hour with 6 slots.
+	For planning purposes, Enwiki takes 12-20 hrs with 6 slots allocated. Trwiki is under 30 minutes with 6 slots.
 
 3. Add makehtml.awk to cron
 
-	It should run after xcite.awk completes, or on a regular schedule like once an hour.
+	Run after xcite.awk completes; or, on a regular schedule such as once an hour.
