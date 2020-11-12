@@ -55,18 +55,18 @@ Installation
 		Exe["wc"] = "/usr/bin/wc"
 		Exe["split"] = "/usr/bin/split"
 
-5. Configure paths and any other hard coded strings such as email address:
+5. Configure static strings:
 
-		In BEGIN{} section of xcite.awk
-		In BEGIN{} section of makehtml.awk
-		In "globals" section of runbot.nim
+		Edit section "_defaults" in xcite.awk
+		Edit section "_defaults" in makehtml.awk
+		Edit section "globals" in runbot.nim
 
 6. Copy doc.html to the public www directory defined in step 5
 
-6. Compile runbot.nim
+7. Compile runbot.nim
 
 		./c  (fast compile during development)
-		./cx (for release version)
+		./cx (optimized for production)
 
 Running
 ========
