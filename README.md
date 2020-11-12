@@ -36,7 +36,7 @@ Installation
 
 	A. Set local URLs in section #1 and #2 
 
-	B. Create a new 'case' entry in section #3, adjust the Home bot path created in step 2:
+	B. Create a new 'case' entry in section #3, adjust the Home bot path created in step 3:
 
 		case "xcite":                                                # Custom bot paths
 			Home = "/data/project/projectname/xcite/"            # path ends in "/"

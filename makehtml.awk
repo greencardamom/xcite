@@ -68,7 +68,7 @@ function coma(s) {
 }
 
 #
-# For sorting 4D associative array on third element (date)
+# Sorting 4D associative array on third element (date)
 #
 function reindex(org, new,       o, o2, o3, o4, newndx) {
   delete new
@@ -147,7 +147,7 @@ function makePage( i,o,o2,o3,o4,Tb,hn,dn) {
 }
 
 #
-# Create data array
+# Create data array from ~/www/log.txt
 #
 function makeArrays(  c,line,i,a,w,filename,filetype) {
 
@@ -183,6 +183,9 @@ function makeArrays(  c,line,i,a,w,filename,filetype) {
 
 }
 
+#
+# Main
+#
 function main() {
 
   if(!makeArrays()) {
@@ -194,16 +197,19 @@ function main() {
 
 }
 
+#
+# BEGIN {}
+#
 BEGIN {
 
   IGNORECASE = 1
 
   delete T
   delete P
-  P["email"] = ""                     # add email for warning messages
-  P["db"]  = Home "db/"               # article name database files
+  P["email"] = ""
+  P["db"]  = Home "db/"             # article name database files
   P["log"]  = Home "log/"             # article name database files
-  P["www"] = "/data/project/botwikiawk/www/static/xcite/"  
+  P["www"] = "/data/project/botwikiawk/www/static/xcite/"
   P["html"] = P["www"] "xcite.html"
 
   main()
