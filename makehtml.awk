@@ -202,15 +202,28 @@ function main() {
 #
 BEGIN {
 
-  IGNORECASE = 1
+  # Defaults:
+  #
+  # email = for reporting critical errors
+  # www = directory where HTML is served from. Include trailing slash.
+  # html = name of html file to be generated in the www directory
+  #
 
+  _defaults = "www       = /data/project/botwikiawk/www/static/xcite/ \
+               email     = name@example.com \
+               html      = xcite.html \
+               version   = 1.0 \
+               copyright = 2020 \
+               author    = User:GreenC on en.wikipedia.org (https://github.com/greencardamom/xcite)"
+
+  # Populate P[""] with above data
+  asplit(P, _defaults, "[ ]*[=][ ]*", "[ ]{9,}")
+
+  IGNORECASE = 1
   delete T
-  delete P
-  P["email"] = ""
-  P["db"]  = Home "db/"             # article name database files
-  P["log"]  = Home "log/"             # article name database files
-  P["www"] = "/data/project/botwikiawk/www/static/xcite/"
-  P["html"] = P["www"] "xcite.html"
+  P["db"]  = Home "db/"             
+  P["log"]  = Home "log/"            
+  P["html"] = P["www"] P["html"]
 
   main()
 

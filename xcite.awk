@@ -64,7 +64,7 @@ function curtime() {
 #
 function backlinks(entity, file,      url, blinks) {
 
-        url = G["apiURL"] "action=query&list=embeddedin&eititle=" urlencodeawk(entity) "&einamespace=" urlencodeawk(G["namespace"]) "&continue=&eilimit=500&format=json&formatversion=2&maxlag=" G["maxlag"]
+        url = P["apiURL"] "action=query&list=embeddedin&eititle=" urlencodeawk(entity) "&einamespace=" urlencodeawk(G["namespace"]) "&continue=&eilimit=500&format=json&formatversion=2&maxlag=" G["maxlag"]
         return getbacklinks(url, entity, "eicontinue", file)
 
 }
@@ -90,7 +90,7 @@ function getbacklinks(url, entity, method, file,      jsonin, jsonout, continuec
 
         while ( continuecode ) {
             if ( method == "eicontinue" )
-                url = G["apiURL"] "action=query&list=embeddedin&eititle=" urlencodeawk(entity) "&einamespace=" urlencodeawk(G["namespace"]) "&eilimit=500&continue=" urlencodeawk("-||") "&eicontinue=" urlencodeawk(continuecode) "&format=json&formatversion=2&maxlag=" G["maxlag"]
+                url = P["apiURL"] "action=query&list=embeddedin&eititle=" urlencodeawk(entity) "&einamespace=" urlencodeawk(G["namespace"]) "&eilimit=500&continue=" urlencodeawk("-||") "&eicontinue=" urlencodeawk(continuecode) "&format=json&formatversion=2&maxlag=" G["maxlag"]
 
             # Try 50 times..
             for(ie = 1; ie <= 50; ie++) {
@@ -201,8 +201,8 @@ function neq(i,  n) {
 #
 function cyclejson(  c,line,i,a,w,filename,filetype) {
 
-  if(checkexists(P["www"] "log.txt")) 
-    removefile2(P["www"] "log.txt")
+  if(checkexists(G["www"] "log.txt")) 
+    removefile2(G["www"] "log.txt")
 
   c = split(readfile(P["db"] "master.db"), line, "\n")
   for(i = c; i >= 1; i--) {
@@ -212,15 +212,15 @@ function cyclejson(  c,line,i,a,w,filename,filetype) {
       filetype = a[1] "." a[2] ".json.gz"
       w[filetype]++
       if(w[filetype] > 3) {
-        if(checkexists(P["www"] filename)) {
-          removefile2(P["www"] filename)
+        if(checkexists(G["www"] filename)) {
+          removefile2(G["www"] filename)
         }
       }
       else 
-        print line[i] >> P["www"] "log.txt"
+        print line[i] >> G["www"] "log.txt"
     }
   }
-  close(P["www"] "log.txt")
+  close(G["www"] "log.txt")
 
 }
 
@@ -308,7 +308,7 @@ function checkrestart() {
     else if(checkexists(P["db"] P["key"] ".index.prev.db.gz"))
       sys2var(Exe["mv"] " " P["db"] P["key"] ".index.prev.db.gz " P["db"] P["key"] ".index.db.gz")
 
-    sys2var(Exe["mailx"] " -s " shquote("NOTIFY: " BotName "(" Hostname "." Domain ") xcite restarted - LOGIN AND CLEAR DATA!") " " P["email"] " < /dev/null")
+    sys2var(Exe["mailx"] " -s " shquote("NOTIFY: " BotName "(" Hostname "." Domain ") xcite restarted - LOGIN AND CLEAR DATA!") " " G["email"] " < /dev/null")
 
     exit
 
@@ -337,7 +337,7 @@ function main(  i,a,command,fn,json,k,c1,c2,lines,db,wc,filesz) {
   for(i = 1; i <= splitn(G["target"], a, i); i++) {
     if(backlinks("Template:" R[a[i] "tlname"], P["db"] P["key"] ".index.db") == 0) {
       stdErr("xcite.awk (" curtime() "): backlinks(Template:" R[a[i] "tlname"] "): unable to determine backlinks.")
-      sys2var(Exe["mailx"] " -s " shquote("NOTIFY: " BotName "(" Hostname "." Domain ") xcite aborted - backlinks error. Check stderr log.") " " P["email"] " < /dev/null")
+      sys2var(Exe["mailx"] " -s " shquote("NOTIFY: " BotName "(" Hostname "." Domain ") xcite aborted - backlinks error. Check stderr log.") " " G["email"] " < /dev/null")
       removefile2(P["db"] P["key"] ".index.db")
       if(checkexists(P["db"] P["key"] ".index.prev.db.gz"))
         sys2var(Exe["mv"] " " P["db"] P["key"] ".index.prev.db.gz " P["db"] P["key"] ".index.db.gz")
@@ -395,7 +395,7 @@ function main(  i,a,command,fn,json,k,c1,c2,lines,db,wc,filesz) {
     # Move .db to www and gzip and log
     for(k = 1; k <= splitn(G["target"], a, k); k++) {
       fn = P["db"] P["key"] "." a[k] ".db"
-      json = P["www"] P["key"] "." a[k] "." date8() ".json"
+      json = G["www"] P["key"] "." a[k] "." date8() ".json"
       if(checkexists(fn)) {
         sys2var(Exe["mv"] " " fn " " json)
         wc = splitx(sys2var(Exe["wc"] " -l " json), " ", 1)
@@ -419,9 +419,42 @@ function main(  i,a,command,fn,json,k,c1,c2,lines,db,wc,filesz) {
 #
 BEGIN {
 
-  IGNORECASE=1
+  # Defaults:
+  #
+  # www = directory where HTML is served from. Include trailing slash.
+  # email = email for reporting critical errors
+  # maxlag = WMF API maxlag .. 5 is typical
+  # memalloc = maximum memory to allocate to Unix sort
+  # namespace = for backlinks eg. 0 means only backlinks that are mainspace 0 articles
+  #
+  # slots = X
+  #   number of concurrent runbot's - valid 1 to 26. Update neq() for more
+  #   Toolforge accounts are assigned a default max of 15 slots
+  #   Leave at least 2 slots free from the max eg. no more than 13 in a default Toolforge account
+  #   The more slots the faster it will complete.
+  #   6 slots will finish enwiki in about 12-20 hours. 12 slots in half that time.
+  #
+  # target = book\njournal
+  #   CS1|2 citation templates to create dumps for
+  #   \n separated list without leading "cite" in template name 
+  #   eg. "book\njournal" will create dumps for {{cite book}} and {{cite journal}}
+  #   Templates must have localizations and regexs defined in trans.awk and trans2nim.awk
 
-  delete G
+  _defaults = "www       = /data/project/botwikiawk/www/static/xcite/ \
+               email     = name@example.com \
+               slots     = 6 \
+               target    = book\njournal\nnews\nmagazine \
+               maxlag    = 5 \
+               memalloc  = 50M \
+               namespace = 0 \
+               version   = 1.0 \
+               copyright = 2020 \
+               author    = User:GreenC on en.wikipedia.org (https://github.com/greencardamom/xcite)"
+
+  # Populate G[""] with above data
+  asplit(G, _defaults, "[ ]*[=][ ]*", "[ ]{9,}")
+
+  IGNORECASE=1
   Optind = Opterr = 1
   while ((C = getopt(ARGC, ARGV, "l:d:")) != -1) {
       opts++       
@@ -432,35 +465,16 @@ BEGIN {
   }
 
   if(empty(G["domain"]) || empty(G["lang"]) ) {
-    print "xcite -l <lang> -d <domain.org> "
+    print "xCite " G["version"] " Copyright " G["copyright"] " " G["author"]
+    print "\n\txcite -l <lang> -d <domain.org>\n"
     exit
   }
 
-  # CS1|2 citation templates to create dumps for
-  # \n separated list without leading "cite" in template name 
-  # eg. "book\njournal" will create dumps for {{cite book}} and {{cite journal}}
-  # Citations must have localizations and regexs defined in trans.awk and trans2nim.awk
-
-  G["target"] = "book\njournal\nnews\nmagazine"
-
   delete P
-  P["email"] = ""                   # Add email for warning messages
   P["db"]  = Home "db/"             # article name database files
   P["log"] = Home "log/"          
-  P["www"] = "/data/project/botwikiawk/www/static/xcite/"
   P["key"] = G["lang"] "." G["domain"]
-
-  G["apiURL"] = "https://" P["key"] "/w/api.php?"
-  G["maxlag"] = 5
-
-  G["namespace"] = 0      # namespace for citation template backlinks
-
-  G["memalloc"] = "50M"   # Unix sort memory allocation
-
-  G["slots"] = 6          # number of concurrent runbot's - valid 1 to 26. Update neq() for more
-                          # Toolforge accounts are assigned a default max of 15 slots
-                          # The more slots the faster it will complete
-                          # 6 slots will finish enwiki in about 12-20 hours
+  P["apiURL"] = "https://" P["key"] "/w/api.php?"
 
   delete R
   loadtrans(G["lang"], G["domain"]) # load R[] with localizations from trans.awk
