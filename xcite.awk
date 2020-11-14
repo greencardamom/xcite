@@ -450,7 +450,6 @@ BEGIN {
   # maxlag = WMF API maxlag .. 5 is typical
   # memalloc = maximum memory to allocate to Unix sort
   # namespace = for backlinks eg. 0 means only backlinks that are mainspace 0 articles
-  # maxhours = maximum hours it runs before aborting. Should be 1 hour less than period between cron jobs.
   #
   # slots = X
   #   number of concurrent runbot's - valid 1 to 26. Update neq() for more
@@ -466,9 +465,8 @@ BEGIN {
   #   Templates must have localizations and regexs defined in trans.awk and trans2nim.awk
 
   _defaults = "www       = /data/project/botwikiawk/www/static/xcite/ \
-               email     = dfgf56greencard93@nym.hush.com \
+               email     = user@example.com \
                slots     = 6 \
-               maxhours  = 120 \
                target    = book\njournal\nnews\nmagazine \
                maxlag    = 5 \
                memalloc  = 50M \

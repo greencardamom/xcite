@@ -57,9 +57,7 @@ Installation
 
 5. Configure static strings:
 
-		Edit section "_defaults" in xcite.awk
-		Edit section "_defaults" in makehtml.awk
-		Edit section "globals" in runbot.nim
+		Edit section "_defaults" in xcite.awk and makehtml.awk
 
 6. Copy doc.html to the public www directory defined in step 5
 
