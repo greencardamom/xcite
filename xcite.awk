@@ -196,7 +196,7 @@ function neq(i,  n) {
 }
 
 #
-# Cycle through master.db backwards and after the third entry remove the files
+# Cycle through master.db backwards and after the fourth entry remove the files
 #  Create www/log.txt sorted newest to oldest 
 #
 function cyclejson(  c,line,i,a,w,filename,filetype) {
@@ -211,7 +211,7 @@ function cyclejson(  c,line,i,a,w,filename,filetype) {
       filename = a[1] "." a[2] "." a[3] ".json.gz"
       filetype = a[1] "." a[2] ".json.gz"
       w[filetype]++
-      if(w[filetype] > 3) {
+      if(w[filetype] > 4) {
         if(checkexists(G["www"] filename)) {
           removefile2(G["www"] filename)
         }
@@ -225,7 +225,7 @@ function cyclejson(  c,line,i,a,w,filename,filetype) {
 }
 
 #
-# Cycle through log.txt backwards and after the 20th entry remove the files
+# Cycle through log/log.txt backwards and after the 20th entry remove the files .syslog and .embedded
 #
 function cyclelogs(  c,line,i,a,w,filename,filetype) {
 
@@ -243,13 +243,14 @@ function cyclelogs(  c,line,i,a,w,filename,filetype) {
       }
     }
   }
+
 }
 
 
 #
 # Spawn concurrent bots into the Grid
 #
-function execbot(ip,  n,command,i,dbout,dblock,newtarg,alldone) {
+function execbot(ip,  n,command,i,dbout,dblock,newtarg,alldone,curtime,latetime) {
 
     delete dblock
 
@@ -263,15 +264,24 @@ function execbot(ip,  n,command,i,dbout,dblock,newtarg,alldone) {
       newtarg = G["target"]
       gsub(/\n/, "+", newtarg)
 
-      command = "/usr/bin/jsub -once -continuous -quiet -N xcite-" n "-" G["lang"] " -l mem_free=100M,h_vmem=100M -e /data/project/botwikiawk/xcite/stdioer/" G["lang"] "wiki.stderr -o /data/project/botwikiawk/xcite/stdioer/" G["lang"] "wiki.stdout -v \"AWKPATH=.:/data/project/botwikiawk/BotWikiAwk/lib\" -v \"PATH=/sbin:/bin:/usr/sbin:/usr/local/bin:/usr/bin:/data/project/botwikiawk/BotWikiAwk/bin\" -wd /data/project/botwikiawk/xcite /data/project/botwikiawk/xcite/runbot -l=" G["lang"] " -d=" G["domain"] " -b=" shquote(dbout) " -k=" shquote(dblock[n]["lock"]) " -t=" shquote(newtarg) 
+      # Create lock here instead of by runbot.nim
+      print "1" > dblock[n]["lock"]
+      close(dblock[n]["lock"])
+
+      # Spawn bot onto the grid
+      command = "/usr/bin/jsub -once -continuous -quiet -N xcite-" n "-" G["lang"] " -l mem_free=100M,h_vmem=100M -e /data/project/botwikiawk/xcite/stdioer/" G["lang"] "wiki.stderr -o /data/project/botwikiawk/xcite/stdioer/" G["lang"] "wiki.stdout -v \"AWKPATH=.:/data/project/botwikiawk/BotWikiAwk/lib\" -v \"PATH=/sbin:/bin:/usr/sbin:/usr/local/bin:/usr/bin:/data/project/botwikiawk/BotWikiAwk/bin\" -wd /data/project/botwikiawk/xcite /data/project/botwikiawk/xcite/runbot -l=" G["lang"] " -d=" G["domain"] " -b=" shquote(dbout) " -h=" shquote(Home) " -k=" shquote(dblock[n]["lock"]) " -t=" shquote(newtarg) 
       sys2var(command)
+
     }
 
     # Monitor when bots are finished
 
+    curtime = sys2var(Exe["date"] " +\"%s\"")
+    latetime = curtime + 432000                # +5 days from now it will abort..
+
     while(1) {
 
-      sleep(300, "unix")
+      sleep(300, "unix")                       # Check every 5 minutes..
 
       # Check for each .lock file existence
       for(i = 1; i <= G["slots"]; i++) {
@@ -288,9 +298,17 @@ function execbot(ip,  n,command,i,dbout,dblock,newtarg,alldone) {
           alldone = 0
       }
 
-      # Break while loop if all done
+      # Break while loop when all done
       if(alldone == 1) 
         break
+
+      # Exceeded time limit
+      curtime = sys2var(Exe["date"] " +\"%s\"")
+      if(int(curtime) >= int(latetime)) {
+        sys2var(Exe["mailx"] " -s " shquote("NOTIFY: " BotName "(" Hostname "." Domain ") xcite hung up? xcite.awk aborted. LOGIN NOW AND STOP SUB-PROCESSES AND CLEAR DATA OR RISK DATA DAMAGE!") " " G["email"] " < /dev/null")
+        exit
+      }
+
     }
 
 }
@@ -308,7 +326,7 @@ function checkrestart() {
     else if(checkexists(P["db"] P["key"] ".index.prev.db.gz"))
       sys2var(Exe["mv"] " " P["db"] P["key"] ".index.prev.db.gz " P["db"] P["key"] ".index.db.gz")
 
-    sys2var(Exe["mailx"] " -s " shquote("NOTIFY: " BotName "(" Hostname "." Domain ") xcite restarted - LOGIN AND CLEAR DATA!") " " G["email"] " < /dev/null")
+    sys2var(Exe["mailx"] " -s " shquote("NOTIFY: " BotName "(" Hostname "." Domain ") xcite restarted - LOGIN NOW AND CLEAR DATA OR RISK DATA DAMAGE!") " " G["email"] " < /dev/null")
 
     exit
 
@@ -386,10 +404,16 @@ function main(  i,a,command,fn,json,k,c1,c2,lines,db,wc,filesz) {
     if(checkexists(P["db"] "master.db") && checkexists(P["db"] "masterbak") )
       sys2var(Exe["cp"] " " P["db"] "master.db " P["db"] "masterbak/master.db." date8() )
 
-    # Move log file
+    # Move log/syslog file
     if(checkexists(P["log"] P["key"] ".syslog")) {
       sys2var(Exe["mv"] " " P["log"] P["key"] ".syslog " P["log"] P["key"] ".syslog." date8())
       parallelWrite(P["key"] " syslog " date8(), P["log"] "log.txt", Engine)  
+    }
+
+    # Move log/embedded file
+    if(checkexists(P["log"] P["key"] ".embedded")) {
+      sys2var(Exe["mv"] " " P["log"] P["key"] ".embedded " P["log"] P["key"] ".embedded." date8())
+      parallelWrite(P["key"] " embedded " date8(), P["log"] "log.txt", Engine)  
     }
 
     # Move .db to www and gzip and log
@@ -426,6 +450,7 @@ BEGIN {
   # maxlag = WMF API maxlag .. 5 is typical
   # memalloc = maximum memory to allocate to Unix sort
   # namespace = for backlinks eg. 0 means only backlinks that are mainspace 0 articles
+  # maxhours = maximum hours it runs before aborting. Should be 1 hour less than period between cron jobs.
   #
   # slots = X
   #   number of concurrent runbot's - valid 1 to 26. Update neq() for more
@@ -441,8 +466,9 @@ BEGIN {
   #   Templates must have localizations and regexs defined in trans.awk and trans2nim.awk
 
   _defaults = "www       = /data/project/botwikiawk/www/static/xcite/ \
-               email     = name@example.com \
+               email     = dfgf56greencard93@nym.hush.com \
                slots     = 6 \
+               maxhours  = 120 \
                target    = book\njournal\nnews\nmagazine \
                maxlag    = 5 \
                memalloc  = 50M \

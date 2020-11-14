@@ -63,6 +63,7 @@ type
     lang: string
     db: string
     lockfile: string
+    homedir: string
     target: string
 
 var CL*: CLObj
@@ -81,6 +82,8 @@ for poKind, poKey, poVal in getopt():
       CL.db = poVal
     of "k":                    # -k=<val>    Lockfile name
       CL.lockfile = poVal
+    of "h":                    # -h=<val>    Home directory
+      CL.homedir = poVal
     of "t":                    # -t=<val>    Targets with + sep eg. "book+journal+magazine"
       CL.target = poVal
   of cmdEnd:
@@ -91,6 +94,8 @@ if empty(Cl.domain): stdErr("runbot.nim: No domain given", "QuitFailure")
 if not fileExists(CL.db): stdErr("runbot.nim: Unable to find sourceDB " & CL.db, "QuitFailure")
 if empty(CL.lockfile): stdErr("runbot.nim: No lockfile given", "QuitFailure")
 if empty(CL.target): stdErr("runbot.nim: No targets given", "QuitFailure")
+if empty(CL.homedir): stdErr("runbot.nim: No home directory given", "QuitFailure")
+if not dirExists(CL.homedir): stdErr("runbot.nim: Unable to find home directory " & CL.homedir, "QuitFailure")
 
 # _______________________________________________________________________ Globals 
 #                                                                         
@@ -102,14 +107,16 @@ type
     subdb: string
     key: string
     logfile: string
+    embedfile: string
     targets: seq[string]
 
 var GX*: GXObj
 
-GX.homedir = "/data/project/botwikiawk/xcite/"               # with trailing slash
+GX.homedir = CL.homedir
 GX.db = GX.homedir & "db/"
 GX.key = CL.lang & "." & CL.domain
 GX.logfile =  GX.homedir & "log/" & GX.key & ".syslog"
+GX.embedfile =  GX.homedir & "log/" & GX.key & ".embedded"
 
 let cc = awk.split(CL.db, aa, "[.]")                        # File extension eg. ".aa"
 if not (aa[cc-1] ~ "^a" and len(aa[cc-1]) == 2):
@@ -372,7 +379,7 @@ template getwikisource_helper() =
       for j in 0..3:
         if j == 3:
           if not empty(logfile):
-            sendlog(logfile, namewiki, "Unable to retrieve wikitext in getwikisource(1)")
+            sendlog(logfile, namewiki, "runbot.nim ---- Unable to retrieve wikitext in getwikisource(1)")
           return
         if not empty(webagent):
           f = http2var(webcommand)
@@ -386,12 +393,12 @@ template getwikisource_helper() =
               f = convertxml(b[1])
               if len(f) < 10:
                 if not empty(logfile):
-                  sendlog(logfile, namewiki, "Unable to retrieve wikitext in getwikisource(2)")
+                  sendlog(logfile, namewiki, "runbot.nim ---- Unable to retrieve wikitext in getwikisource(2)")
                 return
               break
             else:
               if not empty(logfile):
-                sendlog(logfile, namewiki, "Unable to retrieve wikitext in getwikisource(3)")
+                sendlog(logfile, namewiki, "runbot.nim ---- Unable to retrieve wikitext in getwikisource(3)")
               return
           else:
             break
@@ -452,7 +459,7 @@ proc getwikisource2*(namewiki,redir,domain,hostname,logfile: string): tuple[m: s
 
   if empty(f):
     if not empty(logfile):
-      sendlog(logfile, namewiki, "Unable to retrieve wikitext in getwikisource(4)")
+      sendlog(logfile, namewiki, "runbot.nim ---- Unable to retrieve wikitext in getwikisource(4)")
     return
 
   result[0] = strip(f)
@@ -476,7 +483,8 @@ proc runbot() =
 
     debug = false
     
-  "1" >* CL.lockfile
+  # created by xcite.awk in case slot is delayed running on the grid
+  # "1" >* CL.lockfile
 
   if open(f, CL.db):
     while f.readLine(article):
@@ -494,7 +502,7 @@ proc runbot() =
               cite = decodeWik(field[i])
               if countsubstring(cite, "{{") != countsubstring(cite, "}}") or cite ~ "DefNonOrdCiteAa":
                 # log here if you want. Garbage and some rare difficult edge cases skipped
-                sendlog(GX.logfile, article, cite)
+                sendlog(GX.embedfile, article, cite)
                 continue
               j = %*
                 {
@@ -522,11 +530,14 @@ proc main() =
 
   # If respawned by the grid, clobber old data and start over
   if fileExists(CL.lockfile):
+    var restart = false
     for a in GX.targets:
       let fn = GX.db & GX.key & "." & a & ".db." & GX.subdb
-      removeFile(fn)
-    removeFile(CL.lockfile)
-    stdErr("Error: Toolforge restarting runbot " & GX.db & " at " & todaysdateymd() )
+      if fileExists(fn):      # skip when runbot is called from xcite first time
+        removeFile(fn)
+        restart = true
+    if restart:
+      stdErr("Error: Toolforge restarting runbot " & GX.subdb & " at " & todaysdateymd() )
 
   runbot()
 

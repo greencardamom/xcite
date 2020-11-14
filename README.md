@@ -87,6 +87,10 @@ Running
 
 2. Add jsub commands to cron
 
+	Example for enwiki once a week at 1am (note custom paths need to be changed)
+
+		00 1 7,14,21,28 * * /usr/bin/jsub -once -continuous -quiet -N xcite-enwiki -l mem_free=100M,h_vmem=100M -e /data/project/botwikiawk/xcite/stdioer/enwiki.stderr -o /data/project/botwikiawk/xcite/stdioer/enwiki.stdout -v "AWKPATH=.:/data/project/botwikiawk/BotWikiAwk/lib" -v "PATH=/sbin:/bin:/usr/sbin:/usr/local/bin:/usr/bin:/data/project/botwikiawk/BotWikiAwk/bin" -wd /data/project/botwikiawk/xcite /data/project/botwikiawk/xcite/xcite.awk -l en -d wikipedia.org
+
 	For planning purposes, Enwiki takes 12-20 hrs with 6 slots allocated. Trwiki is under 30 minutes with 6 slots.
 
 3. Add makehtml.awk to cron
