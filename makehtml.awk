@@ -160,7 +160,7 @@ function makeArrays(  c,line,i,a,w,filename,filetype) {
   # en.wikipedia.org book 20201001 540000 1000.54
 
   c = split(readfile(P["www"] "log.txt"), line, "\n")
-  for(i = c; i >= 1; i--) {
+  for(i = 1; i <= c; i++) {
     if(!empty(line[i])) {
       split(line[i], a, " ")
       filename = a[1] "." a[2] "." a[3] ".json.gz"
@@ -218,6 +218,16 @@ BEGIN {
 
   # Populate P[""] with above data
   asplit(P, _defaults, "[ ]*[=][ ]*", "[ ]{9,}")
+
+  if(!checkexists(Home)) {
+    stdErr("Unable to find home directory: " Home)
+    stdErr("Check config in ~/BotWikiAwk/lib/botwiki.awk")
+    exit
+  }
+  if(!checkexists(P["www"])) {
+    stdErr("Unable to find www directory: " G["www"])
+    exit
+  }
 
   IGNORECASE = 1
   delete T
