@@ -71,9 +71,9 @@ Running
 
 0. Command-line arguments
 
-	-l <lang> The hostname of the Wiki site eg. "en" or "commons"
-	-d <domain> The domain name of the Wiki site eg. "wikipedia.org" or "wikimedia.org"
-	-h <hours> Number of hours before xcite.awk self-aborts. Set to less than the number of hours in the cron cycle, but long enough to complete a run. It is a safety measure to stop the currently running instance before the next cron starts. For example if cron is on a 48 hour cycle, set to 40 hours which gives you 8 hours to respond to abort email warnings.
+		-l <lang> The hostname of the Wiki site eg. "en" or "commons"
+		-d <domain> The domain name of the Wiki site eg. "wikipedia.org" or "wikimedia.org"
+		-h <hours> Number of hours before xcite.awk self-aborts. Set to less than the number of hours in the cron cycle, but long enough to complete a run. It is a safety measure to stop the currently running instance before the next cron starts. For example if cron is on a 48 hour cycle, set to 40 hours which gives you 8 hours to respond to abort email warnings.
 
 1. Test run
 
