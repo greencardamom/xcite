@@ -277,7 +277,7 @@ function execbot(ip,  n,command,i,dbout,dblock,newtarg,alldone,curtime,latetime)
     # Monitor when bots are finished
 
     curtime = sys2var(Exe["date"] " +\"%s\"")
-    latetime = curtime + 432000                # +5 days from now it will abort..
+    latetime = curtime + (G["hours"] * (60 * 60))    # how many seconds from now it will abort running
 
     while(1) {
 
@@ -304,8 +304,8 @@ function execbot(ip,  n,command,i,dbout,dblock,newtarg,alldone,curtime,latetime)
 
       # Exceeded time limit
       curtime = sys2var(Exe["date"] " +\"%s\"")
-      if(int(curtime) >= int(latetime)) {
-        sys2var(Exe["mailx"] " -s " shquote("NOTIFY: " BotName "(" Hostname "." Domain ") xcite hung up? xcite.awk aborted. LOGIN NOW AND STOP SUB-PROCESSES AND CLEAR DATA OR RISK DATA DAMAGE!") " " G["email"] " < /dev/null")
+      if(int(curtime) >= int(latetime) ) {
+        sys2var(Exe["mailx"] " -s " shquote("NOTIFY: " BotName "(" Hostname "." Domain ") xcite time exceeded - LOGIN NOW AND CLEAR DATA OR RISK DATA DAMAGE") " " G["email"] " < /dev/null")
         exit
       }
 
@@ -326,7 +326,7 @@ function checkrestart() {
     else if(checkexists(P["db"] P["key"] ".index.prev.db.gz"))
       sys2var(Exe["mv"] " " P["db"] P["key"] ".index.prev.db.gz " P["db"] P["key"] ".index.db.gz")
 
-    sys2var(Exe["mailx"] " -s " shquote("NOTIFY: " BotName "(" Hostname "." Domain ") xcite restarted - LOGIN NOW AND CLEAR DATA OR RISK DATA DAMAGE!") " " G["email"] " < /dev/null")
+    sys2var(Exe["mailx"] " -s " shquote("NOTIFY: " BotName "(" Hostname "." Domain ") xcite restarted - LOGIN NOW AND CLEAR DATA OR RISK DATA DAMAGE") " " G["email"] " < /dev/null")
 
     exit
 
@@ -465,7 +465,7 @@ BEGIN {
   #   Templates must have localizations and regexs defined in trans.awk and trans2nim.awk
 
   _defaults = "www       = /data/project/botwikiawk/www/static/xcite/ \
-               email     = user@example.com \
+               email     = name@example.com \
                slots     = 6 \
                target    = book\njournal\nnews\nmagazine \
                maxlag    = 5 \
@@ -480,17 +480,28 @@ BEGIN {
 
   IGNORECASE=1
   Optind = Opterr = 1
-  while ((C = getopt(ARGC, ARGV, "l:d:")) != -1) {
+  while ((C = getopt(ARGC, ARGV, "l:d:h:")) != -1) {
       opts++       
       if(C == "d")                 #  -d <domain>    Domain name eg. wikipedia.org"
         G["domain"] = Optarg
       if(C == "l")                 #  -l <lang>      Wiki language code. 
         G["lang"] = Optarg
+      if(C == "h")                 #  -h <hours>     Abort running after X hours
+        G["hours"] = Optarg
   }
 
-  if(empty(G["domain"]) || empty(G["lang"]) ) {
+  if(empty(G["domain"]) || empty(G["lang"]) || empty(G["hours"]) ) {
     print "xCite " G["version"] " Copyright " G["copyright"] " " G["author"]
-    print "\n\txcite -l <lang> -d <domain.org>\n"
+    print "\n\txcite -l <lang> -d <domain.org> -h <hours till abort>\n"
+    exit
+  }
+  if(!checkexists(Home)) {
+    stdErr("Unable to find home directory: " Home)
+    stdErr("Check config in ~/BotWikiAwk/lib/botwiki.awk")
+    exit
+  }
+  if(!checkexists(G["www"])) {
+    stdErr("Unable to find www directory: " G["www"])
     exit
   }
 

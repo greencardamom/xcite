@@ -69,15 +69,21 @@ Installation
 Running
 ========
 
+0. Command-line arguments
+
+	-l <lang> The hostname of the Wiki site eg. "en" or "commons"
+	-d <domain> The domain name of the Wiki site eg. "wikipedia.org" or "wikimedia.org"
+	-h <hours> Number of hours before xcite.awk self-aborts. Set to less than the number of hours in the cron cycle, but long enough to complete a run. It is a safety measure to stop the currently running instance before the next cron starts. For example if cron is on a 48 hour cycle, set to 40 hours which gives you 8 hours to respond to abort email warnings.
+
 1. Test run
 
 	A. Example for enwiki
 
-		/usr/bin/jsub -once -continuous -quiet -N xcite-enwiki -l mem_free=100M,h_vmem=100M -e /data/project/botwikiawk/xcite/stdioer/enwiki.stderr -o /data/project/botwikiawk/xcite/stdioer/enwiki.stdout -v "AWKPATH=.:/data/project/botwikiawk/BotWikiAwk/lib" -v "PATH=/sbin:/bin:/usr/sbin:/usr/local/bin:/usr/bin:/data/project/botwikiawk/BotWikiAwk/bin" -wd /data/project/botwikiawk/xcite /data/project/botwikiawk/xcite/xcite.awk -l en -d wikipedia.org
+		/usr/bin/jsub -once -continuous -quiet -N xcite-enwiki -l mem_free=100M,h_vmem=100M -e /data/project/botwikiawk/xcite/stdioer/enwiki.stderr -o /data/project/botwikiawk/xcite/stdioer/enwiki.stdout -v "AWKPATH=.:/data/project/botwikiawk/BotWikiAwk/lib" -v "PATH=/sbin:/bin:/usr/sbin:/usr/local/bin:/usr/bin:/data/project/botwikiawk/BotWikiAwk/bin" -wd /data/project/botwikiawk/xcite /data/project/botwikiawk/xcite/xcite.awk -l en -d wikipedia.org -h 48
 
 	B. Example for trwiki
 
-		/usr/bin/jsub -once -continuous -quiet -N xcite-trwiki -l mem_free=100M,h_vmem=100M -e /data/project/botwikiawk/xcite/stdioer/trwiki.stderr -o /data/project/botwikiawk/xcite/stdioer/trwiki.stdout -v "AWKPATH=.:/data/project/botwikiawk/BotWikiAwk/lib" -v "PATH=/sbin:/bin:/usr/sbin:/usr/local/bin:/usr/bin:/data/project/botwikiawk/BotWikiAwk/bin" -wd /data/project/botwikiawk/xcite /data/project/botwikiawk/xcite/xcite.awk -l tr -d wikipedia.org
+		/usr/bin/jsub -once -continuous -quiet -N xcite-trwiki -l mem_free=100M,h_vmem=100M -e /data/project/botwikiawk/xcite/stdioer/trwiki.stderr -o /data/project/botwikiawk/xcite/stdioer/trwiki.stdout -v "AWKPATH=.:/data/project/botwikiawk/BotWikiAwk/lib" -v "PATH=/sbin:/bin:/usr/sbin:/usr/local/bin:/usr/bin:/data/project/botwikiawk/BotWikiAwk/bin" -wd /data/project/botwikiawk/xcite /data/project/botwikiawk/xcite/xcite.awk -l tr -d wikipedia.org -h 2
 
 	Monitor if any problems in ~/log and ~/stdiorer .. watch db's being built in ~/db
 
@@ -87,10 +93,10 @@ Running
 
 	Example for enwiki once a week at 1am (note custom paths need to be changed)
 
-		00 1 7,14,21,28 * * /usr/bin/jsub -once -continuous -quiet -N xcite-enwiki -l mem_free=100M,h_vmem=100M -e /data/project/botwikiawk/xcite/stdioer/enwiki.stderr -o /data/project/botwikiawk/xcite/stdioer/enwiki.stdout -v "AWKPATH=.:/data/project/botwikiawk/BotWikiAwk/lib" -v "PATH=/sbin:/bin:/usr/sbin:/usr/local/bin:/usr/bin:/data/project/botwikiawk/BotWikiAwk/bin" -wd /data/project/botwikiawk/xcite /data/project/botwikiawk/xcite/xcite.awk -l en -d wikipedia.org
+		00 1 7,14,21,28 * * /usr/bin/jsub -once -continuous -quiet -N xcite-enwiki -l mem_free=100M,h_vmem=100M -e /data/project/botwikiawk/xcite/stdioer/enwiki.stderr -o /data/project/botwikiawk/xcite/stdioer/enwiki.stdout -v "AWKPATH=.:/data/project/botwikiawk/BotWikiAwk/lib" -v "PATH=/sbin:/bin:/usr/sbin:/usr/local/bin:/usr/bin:/data/project/botwikiawk/BotWikiAwk/bin" -wd /data/project/botwikiawk/xcite /data/project/botwikiawk/xcite/xcite.awk -l en -d wikipedia.org -h 48
 
 	For planning purposes, Enwiki takes 12-20 hrs with 6 slots allocated. Trwiki is under 30 minutes with 6 slots.
 
 3. Add makehtml.awk to cron
 
-	Run after xcite.awk completes; or, on a regular schedule such as once an hour.
+	Run makehtml.awk after xcite.awk completes; or, on a regular schedule such as once an hour.
